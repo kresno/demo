@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>Phalcon PHP Framework</title>
+        <link rel="shortcut icon" type="image/x-icon" href="<?php echo $this->url->get('img/favicon.ico')?>"/>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        
+    	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+        <!-- Angular JS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>  
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-route.min.js"></script>      
+
+        <script type="text/javascript">
+	        var app=angular.module('CrudApp', []);
+
+	        app.controller("CrudCtrl", function($scope, $http){
+	        	$scope.displayData = function(){
+	        		$http.get("book/read").success(function(data){
+	        			$scope.names = data;
+	        		});
+	        	};    
+	    	       
+		        $scope.insertInfo = function(info){
+		        	$http.post('book/register',
+		        		{'nama_buku':info.nama_buku, 
+		        		 'jenis_buku':info.jenis_buku,
+		        		 'pengarang_buku':info.pengarang,
+		        		 'penerbit_buku' : info.penerbit,
+		        	}).success(function(){
+		        		$scope.displayData();
+		        		$scope.klikform();
+		        		$scope.form_insert=false;
+		        	})
+		        };
+
+		        $scope.klikform = function(){
+		        	$scope.bookInfo =null;
+		        	$scope.form_insert = true;
+		        };
+
+		        $scope.editInfo = function(info){
+		        	$scope.selectedBook=info;
+		        	$scope.form_insert=false;
+		        	$scope.form_update = true;
+		        };
+
+		        $scope.updateInfo = function(info){
+		        	$http.post('book/update',{
+		        		'id':info.id,
+		        		'nama_buku':info.nama_buku, 
+		        		'jenis_buku':info.jenis_buku,
+		        		'pengarang_buku':info.pengarang,
+		        		'penerbit_buku' : info.penerbit,
+		        		}).success(function(){
+		        			$scope.displayData();
+		        			$scope.form_update=false
+		        		})
+		        };
+
+		        $scope.deleteInfo = function(info){
+		        	$http.post('book/delete',
+		        		{'id':info.id, 
+		        	}).success(function(){
+		        		$scope.displayData();
+		        	})	
+		        };
+
+	        });
+	    </script>
+
+    </head>
+
+
+    <nav class="navbar navbar-default">
+          <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">Test</a>
+            </div>
+    </nav>
+
+    <body>
+        <div ng-app="CrudApp" ng-controller="CrudCtrl" ng-init="displayData()" class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2> Data Buku </h2>
+                </div>
+                <div class="col-md-6">
+                <div class="pull-right">
+                    <button type="button" ng-click="klikform()" class="btn btn-primary">Add Record</a>
+                </div>
+            </div>
+
+            <div ng-show="form_insert">
+            	<br>
+            	<div class="clearfix"></div>
+            	 <form class="alert alert-warning" name="bookForm" id="bookForm" ng-submit="insertInfo(bookInfo);" >
+                	<div class="form-group">
+					  <label for="nama_buku">Nama Buku:</label>
+					  <input type="text" class="form-control" id="nama" name="nama_buku" placeholder="ketikkan nama buku.." ng-model="bookInfo.nama_buku" required>
+					</div>
+					<div class="form-group">
+					  <label for="jenis_buku">Jenis Buku:</label>
+					  <select class="form-control" id="jenis_buku" name="jenis_buku" ng-model="bookInfo.jenis_buku">
+					  	<option value="online">Online</option>
+					  	<option value="fiksi">Fiksi</option>
+					  	<option value="sejarah">Sejarah</option>
+					  </select>
+					</div>
+					<div class="form-group">
+					  <label for="pengarang">Pengarang:</label>
+					  <input type="text" class="form-control" id="pengarang" name="pengarang" placeholder="ketikkan nama pengarang.." ng-model="bookInfo.pengarang" required>
+					</div>
+					<div class="form-group">
+					  <label for="penerbit">Penerbit:</label>
+					  <input type="text" class="form-control" id="penerbit" name="penerbit" placeholder="ketikkan nama penerbit.." ng-model="bookInfo.penerbit" required>
+					</div>
+					<div class="form-group">
+					  <input type="submit" class="form-control btn btn-primary" >
+					</div>
+                </form>
+            </div>
+
+            <div ng-show="form_update">
+            	<br>
+            	<div class="clearfix"></div>
+            	 <form class="alert alert-warning" name="editForm" id="editForm" ng-submit="updateInfo(selectedBook);" >
+                	<h3 class="text-center">Update Book Detail </h3>
+                	<div class="form-group">
+					  <label for="nama_buku">Nama Buku:</label>
+					  <input type="text" class="form-control" name="nama_buku" value="{{selectedBook.nama_buku}}" ng-model="selectedBook.nama_buku" required>
+					</div>
+					<div class="form-group">
+					  <label for="jenis_buku">Jenis Buku:</label>
+					  <select class="form-control" id="jenis_buku" name="jenis_buku" value="selectedBook.jenis_buku" ng-model="selectedBook.jenis_buku">
+					  	<option value="online">Online</option>
+					  	<option value="fiksi">Fiksi</option>
+					  	<option value="sejarah">Sejarah</option>
+					  </select>
+					</div>
+					<div class="form-group">
+					  <label for="pengarang">Pengarang:</label>
+					  <input type="text" class="form-control" id="pengarang" name="pengarang" value="{{selectedBook.pengarang}}" ng-model="selectedBook.pengarang" required>
+					</div>
+					<div class="form-group">
+					  <label for="penerbit">Penerbit:</label>
+					  <input type="text" class="form-control" id="penerbit" name="penerbit" value="{{selectedBook.penerbit}}" ng-model="selectedBook.penerbit" required>
+					</div>
+					<div class="form-group">
+					  <input type="submit" class="form-control btn btn-primary" value="Update" >
+					</div>
+                </form>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-responsive table-hover">
+                        <thead>
+                            <tr>
+                                <th>id buku</th>
+                                <th>Nama Buku</th>
+                                <th>Jenis Buku</th>
+                                <th>Pengarang Buku</th>
+                                <th>Penerbit Buku</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>  
+                        <tbody>
+                        	<tr ng-repeat="buku in names">
+                        		<td>{{buku.id}}</td>
+                        		<td>{{buku.nama_buku}}</td>
+                        		<td>{{buku.jenis_buku}}</td>
+                        		<td>{{buku.pengarang}}</td>
+                        		<td>{{buku.penerbit}}</td>
+                        		<td>
+                        		<button class="btn btn-warning" ng-click="editInfo(buku)" title="Edit"><span class="glyphicon glyphicon-edit"></span></button>
+                        		<button class="btn btn-danger" ng-click="deleteInfo(buku)" title="Delete"><span class="glyphicon glyphicon-trash"></span></button>
+                        		</td>
+                        	</tr>
+                        </tbody>  
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    <!-- Ini modal -->
+    
+    </body>
+</html>
